@@ -88,7 +88,13 @@ class Ogre {
   }
 
   private convert = (): RequestHandler => async (req, res) => {
+
+    // console.log("file = " + req.file)
+    console.log("file => ")
+    console.log(req.file)
+
     if (!req.file) {
+      console.log("No file provided")
       res.status(400).json({error: true, msg: "No file provided"})
       return
     }
@@ -104,6 +110,8 @@ class Ogre {
     if (b.sourceSrs) opts.options.push("-s_srs", b.sourceSrs)
     if ("rfc7946" in b) opts.options.push("-lco", "RFC7946=YES")
 
+    // console.log(opts)
+
     res.header(
       "Content-Type",
       "forcePlainText" in b
@@ -112,8 +120,11 @@ class Ogre {
     )
     if ("forceDownload" in b) res.attachment()
 
+    console.log("path=" + req.file.path + "\nopts=" + opts)
+
     try {
       let {data} = await ogr2ogr(req.file.path, opts)
+      console.log(data)
       if (b.callback) res.write(b.callback + "(")
       res.write(JSON.stringify(data))
       if (b.callback) res.write(")")
